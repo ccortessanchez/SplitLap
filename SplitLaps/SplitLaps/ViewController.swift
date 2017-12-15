@@ -24,13 +24,20 @@ class ViewController: UIViewController {
         timer = Observable<NSInteger>
             .interval(0.1, scheduler: MainScheduler.instance)
         timer.subscribe(onNext: { msecs -> Void in
-            print("\(msecs)00ms")
+            //print("\(msecs)00ms")
         }).disposed(by: disposeBag)
+        timer.map(stringFromTimeInterval)
+            .bind(to: timerLabel.rx.text)
+            .disposed(by: disposeBag)
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    //MARK: Helper methods
+    /**
+     Formats time interval to user readable time
+    */
+    func stringFromTimeInterval(ms: NSInteger) -> String {
+        return String(format: "%0.2d:%0.2d.%0.1d",
+                      arguments: [(ms / 600) % 600, (ms % 600 ) / 10, ms % 10])
     }
 
 
