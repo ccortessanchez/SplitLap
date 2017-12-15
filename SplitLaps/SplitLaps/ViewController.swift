@@ -29,6 +29,17 @@ class ViewController: UIViewController {
         timer.map(stringFromTimeInterval)
             .bind(to: timerLabel.rx.text)
             .disposed(by: disposeBag)
+        
+        let lapSequence = timer.sample(splitBtn.rx.tap)
+            .map(stringFromTimeInterval)
+            .scan([String](), accumulator: {lapTimes, newTime in
+                return lapTimes + [newTime]
+            })
+            .share(replay: 1)
+        
+        lapSequence.bind(to: tableView.rx.items(cellIdentifier: "lapCell")) { (row,element,cell) in
+            cell.textLabel!.text = "\(row+1)) \(element)"
+            }.disposed(by: disposeBag)
     }
     
     //MARK: Helper methods
