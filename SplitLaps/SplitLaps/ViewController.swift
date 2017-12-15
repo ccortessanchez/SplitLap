@@ -27,13 +27,26 @@ class ViewController: UIViewController {
             .disposed(by: disposeBag)
         timer = Observable<NSInteger>
             .interval(0.1, scheduler: MainScheduler.instance)
+        rxTimer(timer: timer)
+        rxLapSequence()
+    }
+    
+    //MARK: Rx methods
+    /**
+     Subscribes to a timer a binds it to a label
+    */
+    func rxTimer(timer: Observable<NSInteger>) {
         timer.subscribe(onNext: { msecs -> Void in
             //print("\(msecs)00ms")
         }).disposed(by: disposeBag)
         timer.map(stringFromTimeInterval)
             .bind(to: timerLabel.rx.text)
             .disposed(by: disposeBag)
-        
+    }
+    
+    /**
+    */
+    func rxLapSequence() {
         let lapSequence = timer.sample(splitBtn.rx.tap)
             .map(stringFromTimeInterval)
             .scan([String](), accumulator: {lapTimes, newTime in
@@ -52,8 +65,6 @@ class ViewController: UIViewController {
             .bind(to: tableViewHeader.rx.text)
             .disposed(by: disposeBag)
     }
-    
-    //MARK: Rx methods
     
     //MARK: Helper methods
     /**
