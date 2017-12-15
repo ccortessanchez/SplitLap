@@ -52,6 +52,8 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="splitBtn" destination="69p-gc-5sq" id="lJj-p3-cY9"/>
+                        <outlet property="tableView" destination="CA5-cb-j5j" id="pUh-vw-5q3"/>
                         <outlet property="timerLabel" destination="gfR-Ma-zEF" id="Def-BC-fdZ"/>
                     </connections>
                 </viewController>
