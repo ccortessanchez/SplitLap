@@ -27,10 +27,10 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        isRunning = Observable.merge([playBtn.rx.tap.map({_ in true}), stopBtn.rx.tap.map({_ in false})]).startWith(false).share()
-        isntRunning = isRunning.map({running in !running}).share(replay: 1)
-        
+        isRunning = Observable.merge([playBtn.rx.tap.map({_ in true}), stopBtn.rx.tap.map({_ in false})]).startWith(false).share(replay: 2)
         isRunning.bind(to: stopBtn.rx.isEnabled).disposed(by: disposeBag)
+
+        isntRunning = isRunning.map({running in !running}).share(replay: 1)
         isntRunning.bind(to: splitBtn.rx.isHidden).disposed(by: disposeBag)
         isntRunning.bind(to: playBtn.rx.isEnabled).disposed(by: disposeBag)
         
@@ -44,7 +44,7 @@ class ViewController: UIViewController {
     
     //MARK: Rx methods
     /**
-     Subscribes to a timer a binds it to a label
+     Subscribes to a timer and binds it to a label
     */
     func rxTimer(timer: Observable<NSInteger>) {
         timer.subscribe(onNext: { msecs -> Void in
