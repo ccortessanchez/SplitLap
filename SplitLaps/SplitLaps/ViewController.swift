@@ -37,7 +37,9 @@ class ViewController: UIViewController {
         tableView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         timer = Observable<NSInteger>
-            .interval(0.1, scheduler: MainScheduler.instance)
+            .interval(0.1, scheduler: MainScheduler.instance).withLatestFrom(isRunning, resultSelector: {_, running in running}).filter({running in running}).scan(0, accumulator: {(acc,_) in
+                return acc+1
+            }).startWith(0).share(replay: 2)
         rxTimer(timer: timer)
         rxLapSequence()
     }
@@ -47,9 +49,10 @@ class ViewController: UIViewController {
      Subscribes to a timer and binds it to a label
     */
     func rxTimer(timer: Observable<NSInteger>) {
-        timer.subscribe(onNext: { msecs -> Void in
+        //To test if the timer emits
+        //timer.subscribe(onNext: { msecs -> Void in
             //print("\(msecs)00ms")
-        }).disposed(by: disposeBag)
+        //}).disposed(by: disposeBag)
         timer.map(stringFromTimeInterval)
             .bind(to: timerLabel.rx.text)
             .disposed(by: disposeBag)
