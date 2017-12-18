@@ -27,19 +27,13 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        isRunning = Observable.merge([playBtn.rx.tap.map({_ in true}), stopBtn.rx.tap.map({_ in false})]).startWith(false).share(replay: 2)
-        isRunning.bind(to: stopBtn.rx.isEnabled).disposed(by: disposeBag)
-
-        isntRunning = isRunning.map({running in !running}).share(replay: 1)
-        isntRunning.bind(to: splitBtn.rx.isHidden).disposed(by: disposeBag)
-        isntRunning.bind(to: playBtn.rx.isEnabled).disposed(by: disposeBag)
-        
+        rxState()
         tableView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         timer = Observable<NSInteger>
             .interval(0.1, scheduler: MainScheduler.instance).withLatestFrom(isRunning, resultSelector: {_, running in running}).filter({running in running}).scan(0, accumulator: {(acc,_) in
                 return acc+1
-            }).startWith(0).share(replay: 2)
+            }).startWith(0).share(replay: 1)
         rxTimer(timer: timer)
         rxLapSequence()
     }
@@ -78,6 +72,18 @@ class ViewController: UIViewController {
             .startWith("\tno laps")
             .bind(to: tableViewHeader.rx.text)
             .disposed(by: disposeBag)
+    }
+    
+    /**
+     Creates observables for app state and binds them to split, play and stop buttons
+    */
+    func rxState() {
+        isRunning = Observable.merge([playBtn.rx.tap.map({_ in true}), stopBtn.rx.tap.map({_ in false})]).startWith(false).share(replay: 2)
+        isRunning.bind(to: stopBtn.rx.isEnabled).disposed(by: disposeBag)
+        
+        isntRunning = isRunning.map({running in !running}).share(replay: 1)
+        isntRunning.bind(to: splitBtn.rx.isHidden).disposed(by: disposeBag)
+        isntRunning.bind(to: playBtn.rx.isEnabled).disposed(by: disposeBag)
     }
     
     //MARK: Helper methods
