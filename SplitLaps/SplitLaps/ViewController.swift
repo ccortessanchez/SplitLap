@@ -15,14 +15,25 @@ class ViewController: UIViewController {
     @IBOutlet weak var timerLabel: UILabel!
     @IBOutlet weak var splitBtn: UIButton!
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var playBtn: UIButton!
+    @IBOutlet weak var stopBtn: UIButton!
     
     let tableViewHeader = UILabel()
     
     var disposeBag = DisposeBag()
     var timer: Observable<NSInteger>!
+    var isRunning: Observable<Bool>!
+    var isntRunning: Observable<Bool>!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        isRunning = Observable.merge([playBtn.rx.tap.map({_ in true}), stopBtn.rx.tap.map({_ in false})]).startWith(false).share()
+        isntRunning = isRunning.map({running in !running}).share(replay: 1)
+        
+        isRunning.bind(to: stopBtn.rx.isEnabled).disposed(by: disposeBag)
+        isntRunning.bind(to: splitBtn.rx.isHidden).disposed(by: disposeBag)
+        isntRunning.bind(to: playBtn.rx.isEnabled).disposed(by: disposeBag)
+        
         tableView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         timer = Observable<NSInteger>
